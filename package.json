@@ -1,0 +1,17 @@
+{
+  "name": "wavesgl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "uxi-cli build",
+    "lint": "uxi-cli lint",
+    "test": "uxi-cli test",
+    "dev": "uxi-cli dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "uxi-cli": "^1.0.71"
+  }
+}
