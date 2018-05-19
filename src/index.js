@@ -4,21 +4,21 @@ var geometries = [];
 
 const makeWaves = (nWavesParam, xStartParam, yStartParam, intervalParam) => {
   // args:
-  const nWaves = nWavesParam || 80 ; // triangles pair
-  // const xStart = xStartParam || -1
-  // const yStart = yStartParam || -1
-  const interval = intervalParam || .1
-
+  const nWaves = nWavesParam || 280 ; // triangles pair
   const cols = Math.ceil(Math.sqrt(nWaves / 2))
+  const xStart = xStartParam || -(Math.ceil(cols / 2));
+  const yStart = yStartParam || -(Math.ceil(cols / 2));
+  const interval = intervalParam || .15
+
   const waves = []
-  // const xEnd = xStart + cols
-  // const yEnd = yStart + cols
+  const xEnd = xStart + cols
+  const yEnd = yStart + cols
 
   console.log(cols)
 
-  for (let i = 0; i < cols; i++) {
+  for (let i = yStart; i < yEnd; i++) {
     const row = i // y
-    for (let j = 0; j < cols; j++) {
+    for (let j = xStart; j < xEnd; j++) {
       const col = j // x
 
       // supp:
@@ -54,7 +54,7 @@ const makeWaves = (nWavesParam, xStartParam, yStartParam, intervalParam) => {
   return waves
 }
 
-var theWaves = makeWaves()
+var theWaves = makeWaves(300, null, -5, .12)
 var waves = [ // vertices
   [
     [0, 0, 0],
@@ -88,7 +88,7 @@ const getColor = () => {
 
 function init() {
   console.log('init')
-  camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 100);
+  camera = new THREE.PerspectiveCamera(24, window.innerWidth / window.innerHeight, 0.01, 100);
   camera.position.z = 1;
 
   scene = new THREE.Scene();
@@ -128,8 +128,10 @@ function init() {
   })
 
   group.rotation.x = -20
+  group.rotation.y = -.1
+  group.rotation.z = .3
   // group.position.x = -(window.innerWidth / 2);
-  // group.position.y = -(window.innerHeight / 2);
+  group.position.y = .2;
   // meshes.forEach(geo => scene.add(geo))
   scene.add(group)
 
