@@ -1,6 +1,8 @@
 var camera, scene, renderer;
 var meshes
 var geometries = [];
+var GroupedVertice
+const existingIdenticalyLocatedVerticesModel = new Map();
 
 const makeWaves = (nWavesParam, xStartParam, yStartParam, intervalParam) => {
   // args:
@@ -54,7 +56,7 @@ const makeWaves = (nWavesParam, xStartParam, yStartParam, intervalParam) => {
   return waves
 }
 
-var theWaves = makeWaves(300, null, -5, .12)
+var theWaves = makeWaves(300, null, -5, .1)
 var waves = [ // vertices
   [
     [0, 0, 0],
@@ -104,6 +106,10 @@ function init() {
       new THREE.Vector3(...wave[2])
     )
 
+    for (let i = 0; i < geometry.vertices.length; i++) {
+      geometry.vertices[i].___asc = (Math.random() > .5)
+    }
+
     var normal = new THREE.Vector3(0, 1, 0); //optional
     var color = new THREE.Color(getColor(i)); //optional
     var materialIndex = 0; //optional
@@ -134,6 +140,88 @@ function init() {
   group.position.y = .2;
   // meshes.forEach(geo => scene.add(geo))
   scene.add(group)
+
+
+  /**
+   * Group vertex by identical x and y position
+   */
+ /*  GroupedVertice = []
+  geometries.forEach(({ vertices }, i) => {
+    if (GroupedVertice.length === 0) {
+      GroupedVertice[0] = {
+        x: vertices[0].x,
+        y: vertices[0].y,
+        refs: [vertices[0]]
+      }
+    }
+
+    // GroupedVertice
+
+    let alreadyHasGroup = null
+
+    // vertices.forEach((vertex) => {
+    for (let j = 0; j < vertices.length; j++) {
+      // if (i === 0) return;
+      const vertex = vertices[j]
+      GroupedVertice.forEach((group, i) => {
+        if (vertex.x === group.x && vertex.y === group.y) {
+          alreadyHasGroup = true
+          return GroupedVertice[i].refs.push(vertex)
+        }
+        // return group
+      })
+
+      if (!alreadyHasGroup) {
+        GroupedVertice.push({
+          x: vertex.x,
+          y: vertex.y,
+          refs: [vertex],
+          asc: Math.random() > .5,
+        })
+      }
+
+
+    }
+    // })
+
+    return GroupedVertice
+
+
+
+
+
+    return GroupedVertice
+  }, [])
+ */
+
+
+  for (let i = 0; i < geometries.length; i++) {
+    const geo = geometries[i];
+
+    for (let j = 0; j < geo.vertices.length; j++) {
+      const vertex = geo.vertices[j];
+      const key = {
+        x: vertex.x,
+        y: vertex.y,
+      }
+
+      if (existingIdenticalyLocatedVerticesModel.has(JSON.stringify(key))) {
+        existingIdenticalyLocatedVerticesModel.set(JSON.stringify(key), {
+            geometries: [...existingIdenticalyLocatedVerticesModel.get(JSON.stringify(key)).geometries, geo],
+            asc: existingIdenticalyLocatedVerticesModel.get(JSON.stringify(key)).asc,
+            z: existingIdenticalyLocatedVerticesModel.get(JSON.stringify(key)).z || 0,
+          }
+        )
+      } else {
+        existingIdenticalyLocatedVerticesModel.set(JSON.stringify(key), {
+          geometries: [geo],
+          asc: Math.random() < .5,
+          z: Math.floor(Math.random()) / 100,
+        })
+      }
+    }
+  }
+
 
   // geometry.vertices.push(
   //   new THREE.Vector3(-.10, .10, 0),
@@ -166,20 +254,76 @@ function init() {
 
 }
 
+
+
 function animate() {
 
   requestAnimationFrame(animate);
 
+  // GroupedVertice.forEach((group, i) => {
+  //   for (let i = 0; i < GroupedVertice[i].refs.length; i++) {
+  //     GroupedVertice[i].refs[i].z = getValue({
+  //       value: GroupedVertice[i].refs[i].z,
+  //       asc: GroupedVertice[i].asc
+  //     }).value
+
+  //   }
+  // })
+
+/*
+  const keys = existingIdenticalyLocatedVerticesModel.keys();
+
+  for (let i = 0; i < existingIdenticalyLocatedVerticesModel.size; i++) {
+    const element = existingIdenticalyLocatedVerticesModel[i];
+  }
+
+  for (const group of existingIdenticalyLocatedVerticesModel) {
+    const { z, asc, geometries } = group[1];
+    console.log('group', group)
+    console.log(z, asc, geometries)
+    const value = Math.random() / 10000;
+    for (let j = 0; j < geometries.length; j++) {
+      const geo = geometries[j];
+      for (let k = 0; k < geo.vertices.length; k++) {
+        const vertex = geo.vertices[k].z = (
+          asc
+            ? geo.vertices[k].z = geo.vertices[k].z + value
+            : geo.vertices[k].z = geo.vertices[k].z - value
+        )
+      }
+    }
+  }
+*/
+  // existingIdenticalyLocatedVerticesModel.forEach(({ geometries }) => {
+  //   geometries
+  // })
+
+  // console.log('existingIdenticalyLocatedVerticesModel', existingIdenticalyLocatedVerticesModel)
+
   for (let i = 0; i < geometries.length; i++) {
-    // const geo = geometries[i];
+    const geo = geometries[i];
+    geo.verticesNeedUpdate = true;
+  }
+
+/*
+  for (let i = 0; i < geometries.length; i++) {
+    const geo = geometries[i];
     // console.log(geo.vertices)
-    // geo.vertices[2].z = geo.vertices[2].z + 0.002
-    // geo.verticesNeedUpdate = true;
+
+    // geo.vertices[0].z = geo.vertices[0].z + (Math.random() / 10000 + Math.random() / 10000)
+    // geo.vertices[1].z = geo.vertices[1].z + (Math.random() / 10000 + Math.random() / 10000)
+    // geo.vertices[2].z = geo.vertices[2].z + (Math.random() / 10000 + Math.random() / 10000)
+
+    geo.vertices[0].z = getValue({ value: geo.vertices[0].z, asc: geo.vertices[0].___asc }).value
+    geo.vertices[1].z = getValue({ value: geo.vertices[1].z, asc: geo.vertices[1].___asc }).value
+    geo.vertices[2].z = getValue({ value: geo.vertices[2].z, asc: geo.vertices[2].___asc }).value
+
+    geo.verticesNeedUpdate = true;
     // geo.vertices[2] = geo.vertices[2] + .02
     // mesh.rotation.y += 0.02;
     // mesh.rotation.z += 0.02;
   }
-
+*/
 
   // mesh.rotation.x += 0.01;
   // mesh.rotation.y += 0.02;
@@ -188,5 +332,19 @@ function animate() {
 
 }
 
+const getValue = ({ asc, value }) => {
+  const max = .5
+  const min = .5
+  const move = .00002
+  return {
+    value: asc ? value += move : value -= move,
+    asc: value >= max
+      ? (asc ? false : asc)
+      : (value <= min ? (asc ? false : asc) : asc)
+  }
+}
+
+
 init();
 animate();
+console.log('GroupedVertice', GroupedVertice)
