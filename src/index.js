@@ -1,6 +1,6 @@
 var camera, scene, renderer;
 var meshes
-var geometries = [];
+var geometries = window.geometries = [];
 var GroupedVertice
 const existingIdenticalyLocatedVerticesModel = new Map();
 
@@ -88,6 +88,9 @@ const getColor = () => {
   return color
 }
 
+const verticesStore = {}
+const verticesDirectionStore = {}
+
 function init() {
   console.log('init')
   camera = new THREE.PerspectiveCamera(24, window.innerWidth / window.innerHeight, 0.01, 100);
@@ -97,13 +100,41 @@ function init() {
   var group = new THREE.Group();
 
 
+
   // meshes = waves.map((wave, i) => {
   meshes = theWaves.map((wave, i) => {
+    const keyStrA = JSON.stringify(wave[0])
+    const keyStrB = JSON.stringify(wave[1])
+    const keyStrC = JSON.stringify(wave[2])
+
+    let vertexA = new THREE.Vector3(...wave[0])
+    let vertexB = new THREE.Vector3(...wave[1])
+    let vertexC = new THREE.Vector3(...wave[2])
+
+    if (verticesStore[keyStrA]) {
+      vertexA = verticesStore[keyStrA]
+    } else {
+      verticesStore[keyStrA] = vertexA
+      verticesDirectionStore[keyStrA] = Math.random() < .8
+    }
+    if (verticesStore[keyStrB]) {
+      vertexB = verticesStore[keyStrB]
+    } else {
+      verticesStore[keyStrB] = vertexB
+      verticesDirectionStore[keyStrA] = Math.random() < .8
+    }
+    if (verticesStore[keyStrC]) {
+      vertexC = verticesStore[keyStrC]
+    } else {
+      verticesStore[keyStrC] = vertexC
+      verticesDirectionStore[keyStrA] = Math.random() < .8
+    }
+
     var geometry = new THREE.Geometry();
     geometry.vertices.push(
-      new THREE.Vector3(...wave[0]),
-      new THREE.Vector3(...wave[1]),
-      new THREE.Vector3(...wave[2])
+      vertexA,
+      vertexB,
+      vertexC,
     )
 
     for (let i = 0; i < geometry.vertices.length; i++) {
@@ -141,6 +172,9 @@ function init() {
   // meshes.forEach(geo => scene.add(geo))
   scene.add(group)
 
+  console.log('geometries', geometries)
+  console.log('verticesStore', verticesStore)
+  console.log('verticesDirectionStore', verticesDirectionStore)
 
   /**
    * Group vertex by identical x and y position
@@ -222,6 +256,7 @@ function init() {
     }
   }
 
+  console.log(existingIdenticalyLocatedVerticesModel)
 
   // geometry.vertices.push(
   //   new THREE.Vector3(-.10, .10, 0),
@@ -260,74 +295,44 @@ function animate() {
 
   requestAnimationFrame(animate);
 
-  // GroupedVertice.forEach((group, i) => {
-  //   for (let i = 0; i < GroupedVertice[i].refs.length; i++) {
-  //     GroupedVertice[i].refs[i].z = getValue({
-  //       value: GroupedVertice[i].refs[i].z,
-  //       asc: GroupedVertice[i].asc
-  //     }).value
 
-  //   }
-  // })
-
-/*
-  const keys = existingIdenticalyLocatedVerticesModel.keys();
-
-  for (let i = 0; i < existingIdenticalyLocatedVerticesModel.size; i++) {
-    const element = existingIdenticalyLocatedVerticesModel[i];
-  }
-
-  for (const group of existingIdenticalyLocatedVerticesModel) {
-    const { z, asc, geometries } = group[1];
-    console.log('group', group)
-    console.log(z, asc, geometries)
-    const value = Math.random() / 10000;
-    for (let j = 0; j < geometries.length; j++) {
-      const geo = geometries[j];
-      for (let k = 0; k < geo.vertices.length; k++) {
-        const vertex = geo.vertices[k].z = (
-          asc
-            ? geo.vertices[k].z = geo.vertices[k].z + value
-            : geo.vertices[k].z = geo.vertices[k].z - value
+  let pointercount = 0
+  const alreadyMet = []
+  for (let i = 0; i < geometries.length; i++) {
+    const geo = geometries[i];
+    for (let j = 0; j < geo.vertices.length; j++) {
+      const vertex = geo.vertices[j];
+      const keyStr = JSON.stringify([vertex.x, vertex.y, vertex.z])
+      const pointer = verticesStore[keyStr]
+      const asc = verticesDirectionStore[keyStr];
+      if (pointer === vertex) {
+        vertex.z = (asc
+          ? vertex.z + ((Math.random()) / 4000)
+          : vertex.z - ((Math.random()) / 4000)
         )
+
+        const min = -.2
+        const max = .2
+        if (vertex.z <= min || vertex.z >= max) {
+          verticesDirectionStore[keyStr] = !(verticesDirectionStore[keyStr])
+        }
+
+
+        // console.log(vertex.z)
+        // if (alreadyMet.includes(pointer)) {
+        //   console.log('single pointercount', pointercount++)
+        // }
+        verticesStore[JSON.stringify([vertex.x, vertex.y, vertex.z])] = vertex
+
+        alreadyMet.push(pointer)
       }
+      // if ()
+
     }
-  }
-*/
-  // existingIdenticalyLocatedVerticesModel.forEach(({ geometries }) => {
-  //   geometries
-  // })
-
-  // console.log('existingIdenticalyLocatedVerticesModel', existingIdenticalyLocatedVerticesModel)
-
-  for (let i = 0; i < geometries.length; i++) {
-    const geo = geometries[i];
+    verticesStore
     geo.verticesNeedUpdate = true;
   }
 
-/*
-  for (let i = 0; i < geometries.length; i++) {
-    const geo = geometries[i];
-    // console.log(geo.vertices)
-
-    // geo.vertices[0].z = geo.vertices[0].z + (Math.random() / 10000 + Math.random() / 10000)
-    // geo.vertices[1].z = geo.vertices[1].z + (Math.random() / 10000 + Math.random() / 10000)
-    // geo.vertices[2].z = geo.vertices[2].z + (Math.random() / 10000 + Math.random() / 10000)
-
-    geo.vertices[0].z = getValue({ value: geo.vertices[0].z, asc: geo.vertices[0].___asc }).value
-    geo.vertices[1].z = getValue({ value: geo.vertices[1].z, asc: geo.vertices[1].___asc }).value
-    geo.vertices[2].z = getValue({ value: geo.vertices[2].z, asc: geo.vertices[2].___asc }).value
-
-    geo.verticesNeedUpdate = true;
-    // geo.vertices[2] = geo.vertices[2] + .02
-    // mesh.rotation.y += 0.02;
-    // mesh.rotation.z += 0.02;
-  }
-*/
-
-  // mesh.rotation.x += 0.01;
-  // mesh.rotation.y += 0.02;
-  // console.log(mesh.rotation)
   renderer.render(scene, camera);
 
 }
