@@ -56,7 +56,7 @@ const makeWaves = (nWavesParam, xStartParam, yStartParam, intervalParam) => {
   return waves
 }
 
-var theWaves = makeWaves(300, null, -5, .1)
+var theWaves = makeWaves(8, null, null, .1)
 var waves = [ // vertices
   [
     [0, 0, 0],
@@ -115,22 +115,23 @@ function init() {
       vertexA = verticesStore[keyStrA]
     } else {
       verticesStore[keyStrA] = vertexA
-      verticesDirectionStore[keyStrA] = Math.random() < .8
+      verticesDirectionStore[keyStrA] = Math.random() < .5
     }
     if (verticesStore[keyStrB]) {
       vertexB = verticesStore[keyStrB]
     } else {
       verticesStore[keyStrB] = vertexB
-      verticesDirectionStore[keyStrA] = Math.random() < .8
+      verticesDirectionStore[keyStrA] = Math.random() < .5
     }
     if (verticesStore[keyStrC]) {
       vertexC = verticesStore[keyStrC]
     } else {
       verticesStore[keyStrC] = vertexC
-      verticesDirectionStore[keyStrA] = Math.random() < .8
+      verticesDirectionStore[keyStrA] = Math.random() < .5
     }
 
     var geometry = new THREE.Geometry();
+
     geometry.vertices.push(
       vertexA,
       vertexB,
@@ -165,10 +166,10 @@ function init() {
   })
 
   group.rotation.x = -20
-  group.rotation.y = -.1
-  group.rotation.z = .3
+  // group.rotation.y = -.1
+  // group.rotation.z = .3
   // group.position.x = -(window.innerWidth / 2);
-  group.position.y = .2;
+  // group.position.y = .2;
   // meshes.forEach(geo => scene.add(geo))
   scene.add(group)
 
@@ -306,28 +307,23 @@ function animate() {
       const pointer = verticesStore[keyStr]
       const asc = verticesDirectionStore[keyStr];
       if (pointer === vertex) {
-        vertex.z = (asc
-          ? vertex.z + ((Math.random()) / 15000)
-          : vertex.z - ((Math.random()) / 15000)
-        )
+
+        /* uPDATE:  */
+        // vertex.z = (asc
+        //   ? vertex.z + ((Math.random()) / 15000)
+        //   : vertex.z - ((Math.random()) / 15000)
+        // )
 
         const min = -.2
         const max = .2
         if (vertex.z <= min || vertex.z >= max) {
-          // console.log('reaaaaaaaaaaaaaaaalign')
           verticesDirectionStore[keyStr] = !(verticesDirectionStore[keyStr])
         }
 
-
-        // console.log(vertex.z)
-        // if (alreadyMet.includes(pointer)) {
-        //   console.log('single pointercount', pointercount++)
-        // }
         verticesStore[JSON.stringify([vertex.x, vertex.y, vertex.z])] = vertex
 
         alreadyMet.push(pointer)
       }
-      // if ()
 
     }
     verticesStore
