@@ -307,13 +307,14 @@ function animate() {
       const asc = verticesDirectionStore[keyStr];
       if (pointer === vertex) {
         vertex.z = (asc
-          ? vertex.z + ((Math.random()) / 4000)
-          : vertex.z - ((Math.random()) / 4000)
+          ? vertex.z + ((Math.random()) / 15000)
+          : vertex.z - ((Math.random()) / 15000)
         )
 
         const min = -.2
         const max = .2
         if (vertex.z <= min || vertex.z >= max) {
+          // console.log('reaaaaaaaaaaaaaaaalign')
           verticesDirectionStore[keyStr] = !(verticesDirectionStore[keyStr])
         }
 
